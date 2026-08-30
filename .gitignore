@@ -1,0 +1,15 @@
+# Node / deps
+node_modules/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS / logs
+.DS_Store
+*.log
+
+# 本地敏感配置
+**/application-prod.yml
+**/*.local.yml

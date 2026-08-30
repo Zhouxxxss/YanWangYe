@@ -1,0 +1,79 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: yanyan-backend
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 50MB
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 16
+          min-idle: 4
+
+# MyBatis-Plus
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.yanyan.**.entity
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# 研王爷业务自定义配置
+yanyan:
+  jwt:
+    # 生产环境务必通过环境变量注入
+    secret: ${JWT_SECRET:yanyan-dev-secret-change-me-in-prod-env-please-0123456789}
+    # 访问令牌有效期（毫秒），默认 2 小时
+    expire-ms: 7200000
+    # 刷新令牌有效期（毫秒），默认 7 天
+    refresh-expire-ms: 604800000
+    header: Authorization
+    prefix: "Bearer "
+  # Redis Key 前缀，避免多实例/多环境冲突
+  redis:
+    key-prefix: "yanyan:"
+  # 知识库配额（二期/管理后台可配置，一期内置默认值）
+  doc:
+    default-quota-mb: 100
+    single-file-max-mb: 20
+  # AI 配置占位：接入时通过环境变量注入，避免明文提交
+  ai:
+    provider: ${AI_PROVIDER:mock}   # mock | openai | dashscope | deepseek ...
+    api-key: ${AI_API_KEY:}
+    base-url: ${AI_BASE_URL:}
+    model: ${AI_MODEL:}
+
+# 接口文档（Knife4j/springdoc 走 swagger-ui）
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.yanyan: debug

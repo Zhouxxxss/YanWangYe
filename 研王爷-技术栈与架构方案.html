@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>研王爷·考研伴学系统 — 可行性分析 × 技术栈 × 系统架构</title>
+<style>
+  :root{
+    --ink:#1a2333; --muted:#5b6b82; --line:#e5eaf2; --bg:#f6f8fb;
+    --card:#ffffff; --primary:#3b6ef0; --primary-soft:#eaf0fe;
+    --accent:#13b5a5; --accent-soft:#e6f8f6; --warn:#f59e0b; --warn-soft:#fff7e6;
+    --danger:#ef4444; --danger-soft:#fdecec;
+    --radius:16px; --shadow:0 10px 30px rgba(27,43,80,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);line-height:1.7;background:var(--bg)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 90px}
+  /* ===== hero ===== */
+  .hero{background:linear-gradient(135deg,#24418f 0%,#3b6ef0 55%,#13b5a5 100%);color:#fff;padding:56px 24px 48px;border-radius:0 0 var(--radius) var(--radius)}
+  .hero .wrap{padding:0 24px}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);padding:4px 14px;border-radius:999px;font-size:12.5px;letter-spacing:.5px;margin-bottom:18px}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:.5px}
+  .hero h1 small{display:block;font-size:15px;font-weight:500;opacity:.9;margin-top:8px;letter-spacing:1px}
+  .hero .sub{margin-top:16px;font-size:15px;opacity:.92;max-width:760px}
+  .hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .hero .meta span{background:rgba(255,255,255,.14);padding:6px 14px;border-radius:999px;font-size:12.5px}
+  /* ===== sections ===== */
+  section{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-top:26px;padding:30px 32px}
+  h2{font-size:22px;font-weight:800;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  h2 .no{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:var(--primary);color:#fff;font-size:15px;flex-shrink:0}
+  .lead{color:var(--muted);font-size:14px;margin-bottom:22px;border-left:3px solid var(--primary);padding-left:12px}
+  h3{font-size:16px;font-weight:700;margin:26px 0 10px}
+  h4{font-size:14px;font-weight:700;margin:18px 0 8px;color:var(--primary)}
+  p{color:#33415a;font-size:14px;margin-bottom:10px}
+  ul,ol{padding-left:22px;margin-bottom:12px}
+  li{font-size:14px;color:#33415a;margin-bottom:5px}
+  strong{color:var(--ink)}
+  code{background:#f0f3f9;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;color:#c0392b}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  .card{background:#fafcff;border:1px solid var(--line);border-radius:12px;padding:16px 16px 12px}
+  .card .t{font-weight:700;font-size:14px;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .card .d{font-size:13px;color:var(--muted)}
+  /* ===== tables ===== */
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+  th{background:var(--primary-soft);color:var(--primary);font-weight:700;text-align:left;padding:10px 12px;border-bottom:2px solid var(--primary)}
+  td{padding:10px 12px;border-bottom:1px solid var(--line);color:#33415a;vertical-align:top}
+  tr:hover td{background:#fbfcff}
+  /* ===== badge tags ===== */
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .tags .s{font-size:12px;padding:3px 11px;border-radius:999px;font-weight:600}
+  .layer-1{background:var(--primary-soft);color:var(--primary)}
+  .layer-2{background:var(--accent-soft);color:#0d8f83}
+  .layer-3{background:var(--warn-soft);color:#b87909}
+  .flag-ok{background:#e5f8ee;color:#128a4e}
+  .flag-risky{background:var(--danger-soft);color:#d63c3c}
+  .flag-mid{background:var(--warn-soft);color:#b87909}
+  /* ===== architecture diagram ===== */
+  .arch-box{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:16px}
+  .arch-box .cap{background:var(--primary);color:#fff;font-weight:700;padding:9px 16px;font-size:13px;letter-spacing:.5px}
+  .arch-row{display:flex;gap:10px;padding:12px 16px;flex-wrap:wrap;border-top:1px dashed var(--line)}
+  .arch-box .arch-row:first-of-type{border-top:none}
+  .node{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;flex:1;min-width:120px;text-align:center}
+  .node .nm{font-weight:700;font-size:13px;color:var(--ink)}
+  .node .sub{font-size:11px;color:var(--muted);margin-top:2px}
+  .node.p{background:var(--primary-soft);border-color:#c9d7fb}
+  .node.p .nm{color:var(--primary)}
+  .node.a{background:var(--accent-soft);border-color:#b5eeea}
+  .node.a .nm{color:#0d8f83}
+  .node.w{background:var(--warn-soft);border-color:#f3ddb1}
+  .node.ph2{background:#fbfcfe;border:1.5px dashed #aab8cf}
+  .node.ph2 .nm{color:#7c8aa5}
+  .node.ph2 .sub{color:#9aa7bd}
+  .layer-label{width:100%;font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+  .arrow-hint{text-align:center;color:var(--muted);font-size:11px;margin:2px 0;letter-spacing:2px}
+  /* ===== flow ===== */
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin-top:8px}
+  .flow .step{flex:1;min-width:150px;background:#fafcff;border:1px solid var(--line);border-radius:10px;padding:12px;position:relative}
+  .flow .step .n{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:6px}
+  .flow .step .tt{font-weight:700;font-size:13px}
+  .flow .step .dd{font-size:12px;color:var(--muted)}
+  .flow .sep{align-self:center;color:var(--accent);font-size:16px;padding:0 6px;font-weight:700}
+  @media(max-width:820px){.flow{flex-direction:column}.flow .sep{transform:rotate(90deg);padding:2px 0}}
+  /* ===== risk bars ===== */
+  .risk{display:flex;align-items:center;gap:14px;margin:10px 0}
+  .risk .name{width:130px;flex-shrink:0;font-size:13.5px;font-weight:700;color:var(--ink)}
+  .risk .bar{flex:1;height:10px;background:#eef1f7;border-radius:999px;overflow:hidden}
+  .risk .fill{height:100%;border-radius:999px}
+  .risk .lv{width:74px;text-align:right;font-size:12px;font-weight:700}
+  .lv.high{color:var(--danger)}.lv.mid{color:var(--warn)}.lv.low{color:var(--accent)}
+  .callout{background:#f6f9ff;border:1px solid #d5e2ff;border-left:4px solid var(--primary);border-radius:10px;padding:12px 16px;font-size:13.5px;margin:14px 0}
+  .callout.warn{background:#fffbf0;border-color:#f3dfb0;border-left-color:var(--warn)}
+  .foot{text-align:center;color:var(--muted);font-size:12.5px;margin-top:36px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">ARCHITECTURE &nbsp;·&nbsp; TECH STACK &nbsp;·&nbsp; FEASIBILITY</span>
+    <h1>研王爷 · 考研伴学系统
+      <small>基于 Spring Boot + React 的前后端分离技术方案</small>
+    </h1>
+    <p class="sub">一期聚焦「学习管理 · 错题 Anki · 计划模板 · RAG 溯源答疑 · 背诵打卡 · 数据大盘」个人备考闭环，前端采用动态强交互风格；二期通过预留接口接入社区、搭子小组与择校库。</p>
+    <div class="meta">
+      <span>后端：Spring Boot · Spring Security · JWT · Redis</span>
+      <span>前端：React · TypeScript · Framer Motion · 强交互</span>
+      <span>AI：RAG · 大模型 · 向量检索</span>
+      <span>分期：一期闭环交付 · 二期接口预留</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ===================== 01 可行性分析 ===================== -->
+<section>
+  <h2><span class="no">01</span>可行性分析</h2>
+  <p class="lead">从技术、业务、数据、进度、风险五个维度对「研王爷」落地可行性进行评估，并给出建议的 MVP 收敛范围。</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="t flag-ok">● 技术可行性 —— 高</div>
+      <div class="d">一次 Spring Boot 3 + React 18 前后端分离，技术栈均为业界成熟方案，关键难点均有成熟组件与算法支撑：<br>· 权限：Spring Security + JWT + Redis 组合非常成熟，五表 RBAC 标准化<br>· 定时/限流：Redis 原生支持过期事件 + 定时任务<br>· Anki 间隔重复：SM-2 算法为标准算法，可直接按公式实现<br><strong style="color:var(--accent)">核心熟练度风险点集中在 RAG 与 LLM 集成。</strong></div>
+    </div>
+    <div class="card">
+      <div class="t flag-ok">● 业务可行性 —— 高</div>
+      <div class="d">痛点密集且明确：规划混乱、复习无闭环、错题复盘无规律、答疑低效、择校无参考。垂直场景壁垒高于通用学习 APP，差异化明显。闭环设计完整（规划→执行→复盘→答疑→沉淀→协作），变现链路清晰（会员/题库/模板）。</div>
+    </div>
+  </div>
+
+  <h3>五大维度评估表</h3>
+  <table>
+    <tr><th style="width:110px">维度</th><th style="width:90px">结论</th><th>评估说明</th></tr>
+    <tr><td><strong>技术可行性</strong></td><td><span class="tags"><span class="s flag-ok">良好</span></span></td><td>核心均为成熟技术（Spring Security/JWT/Redis/SM-2/RAG）。真正需要投入测试的是「AI 问答」链路，需预留 API 密钥与向量库接入。</td></tr>
+    <tr><td><strong>业务可行性</strong></td><td><span class="tags"><span class="s flag-ok">良好</span></span></td><td>垂直考研场景，需求真实且高频（每日学习/刷题/复盘），非伪需求。模块间强耦合设计形成完整闭环，正是产品护城河。</td></tr>
+    <tr><td><strong>数据可行性</strong></td><td><span class="tags"><span class="s flag-mid">中等</span></span></td><td>院校库、复习模板等「冷启动数据」需要人工采集清洗，工作量大且有版权/准确性风险。RAG 问答效果依赖语料质量。</td></tr>
+    <tr><td><strong>进度可行性</strong></td><td><span class="tags"><span class="s flag-ok">良好</span></span></td><td>一期范围已锁定且以复用模块为主，可分步交付。一期跑通「学习+错题+背诵+答疑+统计」个人闭环，二期以预留接口接入社区/小组/择校，无返工风险。</td></tr>
+    <tr><td><strong>合规可行性</strong></td><td><span class="tags"><span class="s flag-mid">中等</span></span></td><td>社区内容需审核（文档已验证管理员公共文档审核机制）、AI 生成内容需标识、院校资料需注意版权、用户隐私（学习数据）需按《个人信息保护法》处理。</td></tr>
+  </table>
+
+  <h3>风险与应对</h3>
+  <div class="risk"><span class="name">AI 依赖</span><div class="bar"><div class="fill" style="width:75%;background:var(--warn)"></div></div><span class="lv mid">中高</span></div>
+  <ul>
+    <li><strong>风险：</strong>RAG 溯源准确率依赖模型与提示词；模型 API 有成本与可用性。</li>
+    <li><strong>应对：</strong>抽象统一的 <code>AIProvider</code> 接口（可切换模型商）；落地「RAG 溯源引用」降低幻觉；对大模型调用做限流+缓存+配额。</li>
+  </ul>
+  <div class="risk"><span class="name">冷启动数据</span><div class="bar"><div class="fill" style="width:65%;background:var(--warn)"></div></div><span class="lv mid">中高</span></div>
+  <ul><li><strong>应对：</strong>院校库采用「UGC + 官方模板内置 + 抓取人工校验」三种来源逐步补齐；先内置数量有限的官方复习模板支撑 MVP。</li></ul>
+  <div class="risk"><span class="name">并发与性能</span><div class="bar"><div class="fill" style="width:40%;background:var(--accent)"></div></div><span class="lv low">中低</span></div>
+  <ul><li><strong>应对：</strong>单体起步 + Redis 做缓存/限流/定时，读多写少数据引入 Elasticsearch，必要时再拆微服务与 MQ 削峰。</li></ul>
+  <div class="risk"><span class="name">安全合规</span><div class="bar"><div class="fill" style="width:45%;background:var(--accent)"></div></div><span class="lv low">中低</span></div>
+  <ul><li><strong>应对：</strong>复用现有五表角色权限 + 数据权限；公共文档审核；AI 输出标识；敏感数据加密与脱敏。</li></ul>
+
+  <h3>一期交付范围（已锁定）</h3>
+  <div class="callout">一期交付：<strong>账号权限（已有）→ 学习计时/日程（已有）→ 错题本 + Anki → 计划模板导入 → RAG 溯源答疑 → 背诵打卡 → 数据大盘</strong>。二期通过预留接口接入：<strong>社区互助、搭子小组、择校库</strong>，一期不实现但接口与表结构先留好，避免返工。</div>
+
+  <h3>结论</h3>
+  <p><strong>整体可行性：中等偏高，建议推进。</strong> 项目技术栈扎实、业务闭环完整、迭代节奏清晰，作为个人项目或创业产品的可落地性良好。最大的前置成本和不确定性在于「冷启动数据」与「AI 效果」，建议通过 <code>MVP + 可切换 AI Provider + 数据分批注入</code> 三大策略降低风险。</p>
+</section>
+
+<!-- ===================== 02 技术栈 ===================== -->
+<section>
+  <h2><span class="no">02</span>完整技术栈</h2>
+  <p class="lead">前后端分离架构，前端 React + 后端 Spring Boot，AI 能力通过统一 Provider 抽象接入大模型与向量检索。</p>
+
+  <div class="grid3">
+    <div class="card"><div class="t layer-1">● 前端（动态 · 强交互）</div><div class="d">React · TypeScript · Vite · Tailwind CSS · Ant Design · Framer Motion · Zustand · TanStack Query · ECharts · Lottie</div></div>
+    <div class="card"><div class="t layer-2">● 后端</div><div class="d">Spring Boot 3 · Spring Security · MyBatis-Plus · Redis · MySQL · Elasticsearch · WebSocket</div></div>
+    <div class="card"><div class="t layer-3">● AI 侧</div><div class="d">大模型 API · Spring AI / LangChain4j · 向量库(Milvus/PGVector) · Embedding · 提示词工程</div></div>
+  </div>
+
+  <h3>2.1 前端技术栈（动态强交互风格）</h3>
+  <table>
+    <tr><th style="width:180px">技术</th><th style="width:120px">选型</th><th>用途 / 理由</th></tr>
+    <tr><td>核心框架</td><td>React 18</td><td>组件化 + Hooks；并发特性支撑高频交互渲染；匹配业务文档中大量表单/卡片/看板类界面。</td></tr>
+    <tr><td>语言</td><td>TypeScript</td><td>前后端接口 DTO 用 TS 类型强约束，减少联调出错。</td></tr>
+    <tr><td>构建工具</td><td>Vite</td><td>开发热更新快、构建性能优于 CRA。</td></tr>
+    <tr><td>路由</td><td>React Router</td><td>SPA 多页面、权限路由守卫与路由级懒加载。</td></tr>
+    <tr><td>动效引擎</td><td>Framer Motion</td><td><strong>强交互核心</strong>：页面转场、卡片布局动画、番茄钟环形进度、列表拖拽排序、Anki 卡片翻面/滑动手势，声明式 API 与 React 深度集成。</td></tr>
+    <tr><td>样式方案</td><td>Tailwind CSS + Ant Design</td><td>AntD 保障表单/表格/上传等复杂组件；Tailwind 负责自定义视觉与动效类（hover/active 过渡、渐变、玻璃拟态），二者组合实现个性化界面。</td></tr>
+    <tr><td>客户端状态</td><td>Zustand</td><td>轻量，承载计时器倒计时、番茄钟、抽背计时等<strong>高频实时状态</strong>，避免不必要的全树重渲染。</td></tr>
+    <tr><td>服务端状态</td><td>TanStack Query</td><td>数据缓存与<strong>乐观更新</strong>：打卡/完成日程即时反馈不等待后端，失败自动回滚。</td></tr>
+    <tr><td>请求</td><td>Axios</td><td>统一拦截器注入 JWT、401 刷新、错误提示。</td></tr>
+    <tr><td>数据可视化</td><td>ECharts</td><td>热力图、科目占比环图、进度报告，开启动画渐入与 tooltip 跟随，配合交互筛选。</td></tr>
+    <tr><td>微交互反馈</td><td>Lottie / canvas-confetti</td><td>打卡成功撒花、签到勋章、连续打卡里程碑等情感化反馈动画。</td></tr>
+    <tr><td>富文本/编辑器</td><td>TipTap</td><td>错题录入、文档编辑；二期社区发帖复用。</td></tr>
+    <tr><td>即时通信</td><td>WebSocket(客户端)</td><td>AI 流式回答打字机效果、待复习任务推送提醒。</td></tr>
+    <tr><td>测试</td><td>Jest / Vitest</td><td>组件与状态逻辑单元测试。</td></tr>
+  </table>
+
+  <h4>强交互风格落地点（一期重点页面）</h4>
+  <div class="tags">
+    <span class="s layer-1">番茄钟：环形进度 + 沉浸模式全屏动效</span>
+    <span class="s layer-1">Anki 复习：卡片 3D 翻面 + 左右手势评分</span>
+    <span class="s layer-2">打卡签到：连续天数火焰动画 + 撒花庆祝</span>
+    <span class="s layer-2">数据大盘：热力图逐格渐入 + 数字滚动统计</span>
+    <span class="s layer-3">AI 答疑：流式打字机 + 引用卡片悬浮高亮</span>
+    <span class="s layer-3">计划导入：批量日程生成进度条动画</span>
+  </div>
+  <div class="callout" style="margin-top:14px"><strong>动效原则：</strong>动效服务操作反馈与状态变化（时长 &lt;300ms 为主），页面骨架屏 + 路由懒加载保证首屏性能；所有动效尊重 <code>prefers-reduced-motion</code>，可一键降级为静态。</div>
+
+  <h3>2.2 后端技术栈</h3>
+  <table>
+    <tr><th style="width:180px">技术</th><th style="width:90px">选型</th><th>用途 / 理由</th></tr>
+    <tr><td>核心框架</td><td>Spring Boot 3.x</td><td>标准 Java 生态，快速搭建微服务/单体；与文档「SpringSecurity+JWT+Redis」完全契合。</td></tr>
+    <tr><td>安全认证</td><td>Spring Security + JWT</td><td>登录认证、Token 签发与校验、接口鉴权。</td></tr>
+    <tr><td>会话/缓存</td><td>Redis</td><td>会话管控、Anki 复习周期、限流、热点缓存、定时任务、分布式锁。</td></tr>
+    <tr><td>持久层</td><td>MyBatis-Plus</td><td>RBAC 五表 + 业务表 CRUD 高效；避免手写大量 SQL。</td></tr>
+    <tr><td>主数据库</td><td>MySQL 8</td><td>业务核心数据、五表权限、交易/内容数据。</td></tr>
+    <tr><td>搜索引擎</td><td>Elasticsearch(可选)</td><td>错题、资料、社区帖子的全文检索与聚合统计，达到一定规模后接入。</td></tr>
+    <tr><td>文件存储</td><td>MinIO / 阿里云 OSS</td><td>错题截图、文档、PDF 附件。</td></tr>
+    <tr><td>任务调度</td><td>Quartz / xxl-job</td><td>Anki 待复习推送、背诵提醒。</td></tr>
+    <tr><td>实时通信</td><td>WebSocket</td><td>AI 流式回答、待复习任务推送；二期扩展社区/小组实时交互。</td></tr>
+    <tr><td>接口文档</td><td>Knife4j / Swagger</td><td>前后端联调与 AI 接口说明。</td></tr>
+  </table>
+
+  <h3>2.3 AI 侧技术栈</h3>
+  <table>
+    <tr><th style="width:180px">技术</th><th style="width:90px">选型</th><th>用途 / 理由</th></tr>
+    <tr><td>AI 编排框架</td><td>Spring AI 或 LangChain4j</td><td>统一封装 LLM 调用、Prompt 模板、Chain、流式输出，适配 Java 后端。</td></tr>
+    <tr><td>大模型</td><td>通义/豆包/DeepSeek 等(可切换)</td><td>实现 AI 答疑、错题讲解、抽背出题；通过 <code>AIProvider</code> 抽象支持多模型切换。</td></tr>
+    <tr><td>Embedding</td><td>文本向量化模型</td><td>将文档/知识点转化为向量，支撑语义检索。</td></tr>
+    <tr><td>向量数据库</td><td>Milvus / PGVector / Redis Search</td><td>RAG 知识库语义检索与相似度召回。MVP 可用 PGVector 一键对接 MySQL/PostgreSQL。</td></tr>
+    <tr><td>追踪/提示词</td><td>Langfuse / 自建</td><td>AI 调用成本、效果与引用溯源日志跟踪。</td></tr>
+  </table>
+
+  <h3>2.4 部署与工程化</h3>
+  <div class="tags">
+    <span class="s layer-1">Docker + Docker-Compose</span>
+    <span class="s layer-1">Git + GitLab/GitHub</span>
+    <span class="s layer-1">CI/CD(可选)</span>
+    <span class="s layer-2">Nginx(静态 + 反向代理)</span>
+    <span class="s layer-2">MySQL + Redis 容器化</span>
+    <span class="s layer-3">云服务器 / 内网部署</span>
+    <span class="s layer-3">ELK/日志(可选)</span>
+    <span class="s layer-3">Prometheus + Grafana(可选)</span>
+  </div>
+  <p style="margin-top:10px"><strong>版本建议：</strong>JDK 17 + Node 18+ + MySQL 8 + Redis 7。后端打包 Jar，前端构建静态资源由 Nginx 托管，实现单一 SSO 入口。</p>
+</section>
+
+<!-- ===================== 03 总体架构 ===================== -->
+<section>
+  <h2><span class="no">03</span>总体架构</h2>
+  <p class="lead">采用前后端分离的分层架构，单体应用起步（保证快速迭代），预留按模块横向拆分微服务的演进能力。</p>
+
+  <div class="arch-box">
+    <div class="cap">研王爷 · 系统总体架构（自顶向下）</div>
+
+    <div class="arch-row"><div class="layer-label">┌ 终端层</div>
+      <div class="node p"><div class="nm">Web 应用（React SPA · 强交互）</div><div class="sub">Vite · Tailwind+AntD · Framer Motion · ECharts</div></div>
+      <div class="node p"><div class="nm">管理后台（React）</div><div class="sub">公共文档审核 · 内容管控</div></div>
+    </div>
+    <div class="arrow-hint">▼ HTTPS · JWT(Bearer Token)</div>
+
+    <div class="arch-row"><div class="layer-label">┌ 接入层</div>
+      <div class="node p"><div class="nm">Nginx 反向代理 / 网关</div><div class="sub">静态资源 · 路由 · 跨域</div></div>
+    </div>
+    <div class="arrow-hint">▼</div>
+
+    <div class="arch-row"><div class="layer-label">┌ 应用服务层（Spring Boot 单体 / 模块化）— 实线=一期 · 虚线=二期预留</div>
+      <div class="node p"><div class="nm">安全认证</div><div class="sub">Security+JWT+Redis</div></div>
+      <div class="node p"><div class="nm">学习管理</div><div class="sub">计时器·番茄钟·签到·日程</div></div>
+      <div class="node p"><div class="nm">错题·Anki</div><div class="sub">录入·复习调度</div></div>
+      <div class="node p"><div class="nm">计划模板</div><div class="sub">模板库·一键导入日程</div></div>
+      <div class="node p"><div class="nm">背诵打卡</div><div class="sub">AI抽背·自测·打卡</div></div>
+      <div class="node p"><div class="nm">数据大盘</div><div class="sub">热力图·统计报告</div></div>
+      <div class="node ph2"><div class="nm">社区互助（二期）</div><div class="sub">发帖·问答·内容沉淀</div></div>
+      <div class="node ph2"><div class="nm">搭子小组（二期）</div><div class="sub">组队打卡·共享文档</div></div>
+      <div class="node ph2"><div class="nm">择校库（二期）</div><div class="sub">院校·专业·分数线</div></div>
+    </div>
+    <div class="arrow-hint">▼</div>
+
+    <div class="arch-row"><div class="layer-label">┌ 能力支撑层</div>
+      <div class="node a"><div class="nm">RAG 知识库</div><div class="sub">文档·配额·溯源</div></div>
+      <div class="node a"><div class="nm">AI 服务</div><div class="sub">Provider抽象·答疑</div></div>
+      <div class="node a"><div class="nm">任务调度</div><div class="sub">Quartz·推送复习任务</div></div>
+      <div class="node a"><div class="nm">数据统计</div><div class="sub">大盘·热力图·报告</div></div>
+    </div>
+    <div class="arrow-hint">▼</div>
+
+    <div class="arch-row"><div class="layer-label">┌ 数据层 / 基础设施</div>
+      <div class="node a"><div class="nm">MySQL</div><div class="sub">业务·权限五表</div></div>
+      <div class="node a"><div class="nm">Redis</div><div class="sub">会话·Anki·限流·缓存</div></div>
+      <div class="node a"><div class="nm">向量库</div><div class="sub">RAG 语义检索</div></div>
+      <div class="node a"><div class="nm">ES(可选)</div><div class="sub">全文检索·聚合</div></div>
+      <div class="node a"><div class="nm">对象存储</div><div class="sub">截图·PDF·附件</div></div>
+      <div class="node a"><div class="nm">大模型 API</div><div class="sub">Embedding·Chat</div></div>
+    </div>
+  </div>
+
+  <h3>模块依赖关系（对业务文档的落点）</h3>
+  <div class="callout">
+    <strong>规划层</strong>（模板导入→生成日程） → <strong>执行层</strong>（番茄钟/计时/签到/背诵打卡） → <strong>复盘层</strong>（错题归档·Anki·薄弱分析） → <strong>答疑层</strong>（权限化RAG·溯源） → <strong>沉淀层</strong>（学习数据可视化大盘）——以上为一期闭环；<strong>协作层</strong>（搭子小组·组织共享文档）、<strong>社区层</strong>（互助问答·内容沉淀）、<strong>择校层</strong>（院校绑定·精准交流）为二期接入，接口预留。<br>
+    所有模块均挂在统一的<strong>五表 RBAC 权限体系</strong>之下，并通过 <code>Redis</code> 承担 <code>会话 / Anki 复习周期 / 限流 / 缓存</code> 等核心职责。
+  </div>
+
+  <h3>核心业务流程</h3>
+
+  <h4>① 错题本 + Anki 间隔重复复习</h4>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><div class="tt">录入错题</div><div class="dd">手动/粘贴/截图上传，标科目章节错因</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">2</span><div class="tt">AI 讲解</div><div class="dd">RAG 匹配知识点+错因分析+同类题</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">3</span><div class="tt">执行复盘</div><div class="dd">联动计时器，记录复盘学习时长</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">4</span><div class="tt">复习调度</div><div class="dd">SM-2 算下一复习日，Redis 到期推送</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">5</span><div class="tt">待办同步</div><div class="dd">自动生成日程复习任务</div></div>
+  </div>
+
+  <h4>② RAG 溯源答疑（保障准确性）</h4>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><div class="tt">用户提问</div><div class="dd">AI 助手接入问答</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">2</span><div class="tt">权限过滤</div><div class="dd">按公共/私人/组织文档控制检索范围</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">3</span><div class="tt">向量召回</div><div class="dd">检索相关文档段落</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">4</span><div class="tt">LLM 生成</div><div class="dd">基于召回上下文作答</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">5</span><div class="tt">引用溯源</div><div class="dd">展示引用文档/段落，一键跳转原文</div></div>
+  </div>
+
+  <h4>③ 计划模板导入（规划闭环）</h4>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><div class="tt">选模板</div><div class="dd">数学/英语/政治/专业课·基础/强化/冲刺</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">2</span><div class="tt">一键导入</div><div class="dd">批量生成周/日复习日程，可自定义修改</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">3</span><div class="tt">执行跟踪</div><div class="dd">日程完成数据回写学习时长</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">4</span><div class="tt">进度可视</div><div class="dd">完成率/科目占比在大盘呈现</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">5</span><div class="tt">复盘迭代</div><div class="dd">薄弱日程联动错题复习任务</div></div>
+  </div>
+
+  <h4>④ 背诵打卡（记忆强化）</h4>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><div class="tt">录入内容</div><div class="dd">政治/专业课背诵卡片，按章节归类</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">2</span><div class="tt">AI 抽背</div><div class="dd">大模型随机出题，卡片式问答交互</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">3</span><div class="tt">自测默写</div><div class="dd">默写对比原文，AI 判定掌握度</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">4</span><div class="tt">自动打卡</div><div class="dd">完成即打卡，时长计入学习统计</div></div>
+    <div class="sep">→</div>
+    <div class="step"><span class="n">5</span><div class="tt">间隔重复</div><div class="dd">复用 SM-2 调度，强化记忆复盘</div></div>
+  </div>
+
+  <div class="callout warn"><strong>二期预留流程（一期只留接口）：</strong>择校绑定（收藏院校→绑定专业→专属统计）、社区联动（发帖挂院校/专业标签→优质帖沉淀个人知识库）、搭子小组（匹配同目标用户→组队打卡→共享文档）。相关表结构与权限点一期预埋，见第 05 节拓展接口设计。</div>
+</section>
+
+<!-- ===================== 04 数据库与关键设计 ===================== -->
+<section>
+  <h2><span class="no">04</span>数据模型与关键设计</h2>
+  <p class="lead">以业务文档强调的红利复用为原则：权限沿用「五表角色权限」，其余按模块归纳核心表。</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="t layer-1">RBAC 五表（复用）</div>
+      <ul style="padding-left:18px;font-size:13px">
+        <li>user（用户）</li><li>role（角色）</li><li>permission（权限点）</li>
+        <li>user_role（用户角色关联）</li><li>role_permission（角色权限关联）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="t layer-2">学习域</div>
+      <ul style="padding-left:18px;font-size:13px">
+        <li>study_record·study_session(计时)</li>
+        <li>schedule_task(日程)·checkin(签到)</li>
+        <li>tomato_session(番茄钟)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="t layer-3">错题 / 背诵域（一期）</div>
+      <ul style="padding-left:18px;font-size:13px">
+        <li>wrong_question(错题)·review_record(复习)</li>
+        <li>recite_card(背诵卡片)·recite_record(打卡记录)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="t layer-1">知识库 / AI 域</div>
+      <ul style="padding-left:18px;font-size:13px">
+        <li>document(文档)·doc_category(分类)</li>
+        <li>doc_permission(权限)·doc_quota(配额)</li>
+        <li>vector_index(向量索引)·citation(溯源)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="t layer-2">社区 / 协作 / 择校（二期·一期预埋表结构）</div>
+      <ul style="padding-left:18px;font-size:13px">
+        <li>post·comment·like(社区)</li>
+        <li>group·group_member·group_doc(搭子小组)</li>
+        <li>school·major·admission_line(择校库)</li>
+        <li>user_target(目标绑定·一二期衔接表)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="t layer-3">统计 / 支撑</div>
+      <ul style="padding-left:18px;font-size:13px">
+        <li>study_stat_daily(学习统计)</li>
+        <li>plan_template(复习模板)</li>
+        <li>notification(消息推送)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Redis 的核心职责</h3>
+  <table>
+    <tr><th>职责</th><th style="width:170px">Key 设计示意</th><th>说明</th></tr>
+    <tr><td><strong>会话管控</strong></td><td><code>login:token:&lt;uid&gt;</code></td><td>JWT 黑名单/主动下线，Redis 存储会话有效状态。</td></tr>
+    <tr><td><strong>Anki 复习周期</strong></td><td><code>anki:due:&lt;date&gt;:&lt;uid&gt;</code></td><td>SM-2 到期任务集合（错题 + 背诵卡片共用调度器），配合定时任务推送「今日待复习」。</td></tr>
+    <tr><td><strong>限流 + 缓存</strong></td><td><code>rate:&lt;uid&gt;:&lt;api&gt;</code> / <code>cache:&lt;key&gt;</code></td><td>对 AI 调用、发帖等做限流；热点数据(择校/模板)缓存。</td></tr>
+  </table>
+  <p>分布式锁用 <code>SETNX</code>，避免重复复习/重复任务生成。既能支撑定时推送，也天然适配未来多实例部署。</p>
+
+  <div class="callout warn"><strong>设计提醒：</strong>RAG 检索范围必须融入「数据权限」——同一文档，公共可见、组织可见、仅本人可见；向量检索在召回阶段即按用户可见范围过滤，避免越权查阅他人资料。</div>
+</section>
+
+<!-- ===================== 05 演进路线 ===================== -->
+<section>
+  <h2><span class="no">05</span>实施方案与演进路线</h2>
+  <div class="grid3">
+    <div class="card"><div class="t flag-ok">Phase 1 · 一期（个人备考闭环 · 已锁定）</div><div class="d">账号权限(已有) · 学习计时/日程(已有) · 错题+Anki · 计划模板导入 · RAG溯源答疑 · 背诵打卡 · 数据大盘。跑通「学习-刷题-复盘-答疑-统计」闭环，前端动态强交互。</div></div>
+    <div class="card"><div class="t flag-mid">Phase 2 · 二期（社交化·接入预留接口）</div><div class="d">社区互助(发帖/问答/内容沉淀个人知识库) · 考研搭子小组(组队打卡/共享文档) · 择校库(院校专业/分数线/目标绑定)。直接挂载一期预埋的表结构、权限点与事件接口。</div></div>
+    <div class="card"><div class="t flag-ok">Phase 3 · 平台化</div><div class="d">性能演进(分库分表·ES) · 按需微服务拆分(权限/学习/AI独立部署) · 智能推荐 · 数据导出。</div></div>
+  </div>
+
+  <h3>二期拓展接口预留设计（一期就要做对的事）</h3>
+  <table>
+    <tr><th style="width:130px">预留点</th><th style="width:290px">一期做法</th><th>二期接入方式</th></tr>
+    <tr><td><strong>权限点预埋</strong></td><td>permission 表预注册 <code>community:post</code>、<code>group:join</code>、<code>school:view</code> 等权限码（默认不分配角色）</td><td>新模块 Controller 直接 <code>@PreAuthorize</code> 引用既有权限码，无需改权限表结构。</td></tr>
+    <tr><td><strong>表结构预埋</strong></td><td>建库时同步创建 post/group/school/user_target 等二期空表与索引；user 表预留 target_school_id 字段（可空）</td><td>二期只写业务逻辑不迁移数据；user_target 直接作为一二期衔接（二期统计按目标院校维度聚合）。</td></tr>
+    <tr><td><strong>领域事件</strong></td><td>Spring Event 发布 <code>StudyCompletedEvent</code>、<code>CheckinEvent</code>、<code>QuestionResolvedEvent</code>，一期仅日志消费</td><td>二期社区动态流/小组排行榜直接新增事件监听器（或平滑替换为 MQ），零侵入扩展。</td></tr>
+    <tr><td><strong>API 版本化</strong></td><td>统一 <code>/api/v1/**</code> 前缀 + 模块化包结构（controller/community 空包占位）</td><td>二期新增 <code>/api/v1/community/**</code>、<code>/api/v1/group/**</code>、<code>/api/v1/school/**</code>，与一期接口互不影响。</td></tr>
+    <tr><td><strong>前端模块化</strong></td><td>src/features 按域拆分（study/wrongbook/plan/rag/recite/dashboard），路由懒加载 + 二期占位路由隐藏</td><td>新增 features/community、features/school 包即插即用，共享已抽象的卡片/动效/上传组件。</td></tr>
+    <tr><td><strong>知识库沉淀入口</strong></td><td>document 表预留 <code>source_type</code> 字段（manual/import/community）</td><td>二期「社区优质帖一键存入个人知识库」直接复用文档上传与向量化管线。</td></tr>
+  </table>
+
+  <h3>关键技术实现要点</h3>
+  <ul>
+    <li><strong>Anki 算法：</strong>采用标准 <code>SM-2</code> 间隔重复算法，按 4 个质量评分档位计算下次复习日；<strong>错题与背诵卡片共用一套复习调度器</strong>（抽象 ReviewItem 接口），复习调度落地 Redis 待复习集合。</li>
+    <li><strong>背诵打卡：</strong>recite_card 录入后由大模型生成抽背问题池（Prompt 预生成缓存，避免每次实时调用）；默写对比走 LLM 相似度判定，打卡成功发布 CheckinEvent 计入学习时长。</li>
+    <li><strong>数据大盘性能：</strong>study_stat_daily 由定时任务预聚合（签到/时长/任务完成率/错题复盘），大盘读预聚合表 + Redis 缓存，避免实时全表扫描；热力图与占比图支持周/月切换。</li>
+    <li><strong>前端强交互：</strong>计时器/番茄钟用 Zustand + <code>requestAnimationFrame</code> 驱动倒计时（避免 setInterval 漂移）；打卡/完成日程走 TanStack Query 乐观更新；AI 回答 SSE 流式渲染打字机效果；动效统一 Framer Motion 编排。</li>
+    <li><strong>AI 可切换：</strong>定义 <code>AIChatClient / EmbeddingClient</code> 接口，适配不同推理服务商；统一 Prompt 模板（章节讲解/错因分析/抽背出题）。</li>
+    <li><strong>溯源引用：</strong>LLM 返回的引用段落保留 <code>doc_id + 段落位置</code>，前端渲染可点击跳转原文。</li>
+    <li><strong>配额管控：</strong>按角色维护 <code>doc_quota</code>，在文档上传、向量入库两处做存储上限与单文件大小校验。</li>
+  </ul>
+
+  <div class="callout"><strong>上线建议：</strong>第一版以前后端单体 + Nginx 部署于单台云服务器即可（Docker Compose 编排 MySQL/Redis/后端/前端），成本低、易维护；待注册量与数据量上来后再评估 ES、消息队列与微服务化。</div>
+</section>
+
+<div class="foot">研王爷 · 考研伴学系统 — 技术方案 ｜ 基于业务文档《研王爷-考研伴学系统 完整业务文档》编制</div>
+</div>
+</body>
+</html>
