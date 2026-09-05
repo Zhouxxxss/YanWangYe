@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* 卡片悬浮反馈（动效风格统一，尊重 reduced-motion 由全局规则降级） */
+  .card-lift {
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(67, 97, 238, 0.14);
+  }
+
+  /* 按钮/徽章按压反馈 */
+  .press {
+    transition: transform 0.1s ease;
+  }
+  .press:active {
+    transform: scale(0.96);
+  }
+
+  /* 柔和描边梯度文字（品牌点缀，避免大面积滥用） */
+  .text-shine {
+    background: linear-gradient(90deg, #4361ee, #7b8cff 50%, #4361ee);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+}
+
 :root {
   color-scheme: light;
 }

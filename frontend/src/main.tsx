@@ -24,7 +24,22 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ConfigProvider
         locale={zhCN}
-        theme={{ token: { colorPrimary: '#4361ee', borderRadius: 10 } }}
+        theme={{
+          token: {
+            colorPrimary: '#4361ee',
+            colorInfo: '#4361ee',
+            colorWarning: '#ff9f43',
+            colorSuccess: '#22c55e',
+            borderRadius: 12,
+            fontSize: 14,
+            fontFamily:
+              "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
+          },
+          components: {
+            Button: { fontWeight: 600 },
+            Card: { boxShadow: '0 6px 18px rgba(31, 45, 61, 0.05)' },
+          },
+        }}
       >
         <App />
       </ConfigProvider>
