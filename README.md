@@ -1,56 +1,69 @@
 # 研王爷 · 考研伴学系统
 
-基于 Spring Boot 3 + React 18 的前后端分离项目骨架。**一期闭环 + 二期接口预留**。
+基于 **Spring Cloud Alibaba 微服务 + React 18** 的前后端分离系统。**一期闭环 + 二期接口预留**。
+
+## 架构
+
+```
+frontend ──HTTP──▶ ywy-gateway (8100) ──lb://──▶ ywy-auth (8102)
+        JWT 鉴权/限流/路由          Nacos 服务发现    ywy-user (8103)
+                                                      ywy-study (8104)
+                                                      ywy-rag (8105)
+                                                      ywy-community (预留,二期)
+                                                      ywy-shopping (预留,二期)
+```
+
+- **注册中心 / 配置中心**：Nacos（命名空间 `yanyan`）
+- **服务间通信**：OpenFeign
+- **认证**：网关 `AuthGlobalFilter` 集中 JWT 鉴权，身份信息经 Header 透传下游；网关内置令牌桶限流
+- **存储**：MySQL（业务数据）/ Redis（会话、Anki 到期队列）/ 对象存储（RustFS，RAG 模块可插拔）
 
 ## 目录结构
 
 ```
 .
-├── backend/                  # Spring Boot 3.2 (Java 17)
-│   └── src/main/
-│       ├── java/com/yanyan/
-│       │   ├── common/       # 通用：统一返回 R / 全局异常 / BaseEntity / 结果封装
-│       │   ├── config/       # MyBatis-Plus / Jackson / Redis / 审计填充
-│       │   ├── security/     # JWT 认证 + RBAC(SecurityConfig) + LoginUser(ThreadLocal)
-│       │   ├── event/        # 领域事件(一期发布,二期消费:卡片/时长/打卡)
-│       │   ├── task/         # 定时任务(Anki 复习提醒等)
-│       │   └── module/
-│       │       ├── auth      # 账号权限(一期,已有)
-│       │       ├── study     # 学习计时/签到/日程(一期,已有)
-│       │       ├── wrongbook # 错题本 + Anki(一期)
-│       │       ├── anki      # SM-2 算法 + 统一复习调度(错题/背诵共用)
-│       │       ├── recite    # 背诵打卡(一期)
-│       │       ├── plan      # 计划模板导入(一期)
-│       │       ├── rag       # RAG 溯源答疑(一期, AiProvider 可切换 Mock)
-│       │       ├── dashboard # 数据大盘(一期)
-│       │       └── community|group|school  # 二期预留占位包
-│       └── resources/
-│           ├── application.yml  # 主配置
-│           ├── application-dev.yml
-│           └── db/init.sql      # 数据库初始化(一期表 + 二期空表预埋)
-├── frontend/                 # React 18 + Vite + TS (动态强交互)
+├── backend-ms/                 # Spring Cloud 微服务聚合工程
+│   ├── ywy-gateway/            # 网关：路由 / JWT 鉴权 / 限流
+│   ├── ywy-common/             # 通用：统一返回 R / 异常 / JwtUtils / 公共组件
+│   ├── ywy-api/                # Feign 接口 + 跨服务 DTO
+│   ├── ywy-auth/               # 认证授权（登录/注册/刷新/退出）
+│   ├── ywy-user/               # 用户档案 / 好友
+│   ├── ywy-study/              # 错题 / 背诵 / 学习计时 / 计划模板 / 遗忘曲线 / 数据大盘
+│   ├── ywy-rag/                # RAG 知识库：文件分片上传 / 向量检索 / 智能溯源答疑
+│   ├── ywy-community/          # 二期预留（发帖 / 好友聊天）
+│   ├── ywy-shopping/           # 二期预留（二手资料 / 商家入驻）
+│   ├── deploy/sql/init.sql     # 数据库初始化
+│   └── docker-compose.yml      # MySQL / Redis / Nacos 基础设施编排
+├── frontend/                   # React 18 + Vite + TS (动态强交互)
 │   └── src/
-│       ├── api/http.ts       # axios 封装(JWT 注入/401 跳转/统一 R)
-│       ├── stores/auth.ts    # Zustand 登录态
-│       ├── components/       # 布局 / 路由守卫
-│       └── features/         # 按域拆分(study/wrongbook/recite/rag/plan/dashboard + _phase2)
-└── docker-compose.yml        # MySQL8 / Redis7 / MinIO
+│       ├── api/http.ts         # axios 封装(JWT 注入/401 跳转/统一 R)
+│       ├── stores/auth.ts      # Zustand 登录态
+│       ├── components/         # 布局 / 路由守卫
+│       └── features/           # 按域拆分(study/wrongbook/recite/rag/plan/dashboard)
+└── 研王爷-技术栈与架构方案.html
 ```
 
 ## 快速启动
 
-1. 启动基础设施（MySQL + Redis）：
+前置：安装 Java 17+、Maven、Docker。
+
+1. 启动基础设施（MySQL + Redis + Nacos）：
    ```bash
+   cd backend-ms
    docker compose up -d
    ```
-   首次启动自动执行 `backend/src/main/resources/db/init.sql` 建库建表。
+   首次启动自动执行 `deploy/sql/init.sql` 建库建表。Nacos 控制台 `http://localhost:8848/nacos`。
 
-2. 启动后端（Java 17+，内置 Maven Wrapper，无需单独装 Maven）：
+2. 打包并启动各微服务（独立 JVM 进程）：
    ```bash
-   cd backend
-   .\mvnw.cmd spring-boot:run   # Windows
-   # ./mvnw spring-boot:run    # macOS / Linux
-   # 接口文档: http://localhost:8080/swagger-ui.html
+   cd backend-ms
+   mvn -DskipTests package
+   # 分别以独立进程启动，端口见上：
+   java -jar ywy-gateway/target/ywy-gateway-0.1.0.jar   # 8100
+   java -jar ywy-auth/target/ywy-auth-0.1.0.jar         # 8102
+   java -jar ywy-user/target/ywy-user-0.1.0.jar         # 8103
+   java -jar ywy-study/target/ywy-study-0.1.0.jar       # 8104
+   java -jar ywy-rag/target/ywy-rag-0.1.0.jar           # 8105
    ```
 
 3. 启动前端：
@@ -58,32 +71,33 @@
    cd frontend
    npm install
    npm run dev
-   # 访问: http://localhost:3000  (已代理 /api -> 8080)
+   # 访问: http://localhost:3000  (已代理 /api -> 网关 8100)
    ```
+
+统一入口为网关 `http://localhost:8100`，所有 `/api/**` 请求经网关鉴权并路由到对应微服务。
 
 ## 一期范围（已锁定）
 
-| 模块 | 状态 | 说明 |
+| 模块 | 服务 | 状态 |
 |---|---|---|
-| 账号权限 | ✅ 已有 | Security + JWT + Redis 会话，RBAC 五表 |
-| 学习计时 / 日程 | ✅ 已有 | 计时落库 → 领域事件 |
-| 错题本 + Anki | 🆕 骨架 | SM-2 算法 + 统一调度器 |
-| 计划模板导入 | 🆕 骨架 | 模板 → 批量生成日程 |
-| RAG 溯源答疑 | 🆕 骨架 | AiProvider 抽象(可切换 Mock/商用) |
-| 背诵打卡 | 🆕 骨架 | 与错题共用 Anki 调度 |
-| 数据大盘 | 🆕 骨架 | study_stat_daily 预聚合占位 |
+| 账号权限 | ywy-auth | ✅ JWT + Redis 会话，集中鉴权 |
+| 用户档案 / 好友 | ywy-user | ✅ |
+| 学习计时 / 日程 | ywy-study | ✅ |
+| 错题本 + Anki | ywy-study | SM-2 算法 + 统一调度 |
+| 计划模板导入 | ywy-study | 模板 → 批量生成日程 |
+| 背诵打卡 | ywy-study | 与错题共用 Anki 调度 |
+| RAG 溯源答疑 | ywy-rag | Agentic RAG + 向量检索 + 引用溯源 |
+| 数据大盘 | ywy-study | 预聚合 + 热力图 |
 
 ## 二期预留（不返工设计）
 
-在 `_phase2` / `module.{community,group,school}` 中，均已预埋：
-- **权限点**：`community:*` `group:*` `school:view`（默认不分配角色）
-- **数据表**：post / comment / group / school / user_target 等空表已在 `init.sql`
-- **领域事件**：`StudyCompletedEvent` `CheckinEvent` 一期发布，二期社区/小组排行榜直接监听
-- **前端**：`/community` `/group` `/school` 占位路由 + 侧边栏「二期」灰态入口
+- **ywy-community**（发帖 / 好友聊天）、**ywy-shopping**（二手资料 / 商家入驻）已建模块骨架
+- RAG 的存储与向量组件通过接口抽象，`local | rustfs` 与 `memory | milvus` 可切换
+- 网关已为社区 / 购物路由预留 `/api/v1/community/**`、`/api/v1/shopping/**`
 
 ## 技术要点
 
-- **前后端分离**：单体起步，预留 `/api/v1/**` 版本化与 `features/*` 模块化，二期模块即插即用
+- **微服务独立部署**：每个模块独立 JVM 进程，经 Nacos 注册与发现，网关负载均衡路由
+- **Service 层契约化**：每个业务 Service 为「接口 + impl」结构，接口定义服务契约
 - **强交互前端**：Framer Motion 动效、TanStack Query 乐观更新、Tailwind + AntD 组合，动效尊重 `prefers-reduced-motion`
-- **AI 可切换**：`AiProvider` 接口 + `yanyan.ai.provider` 配置，Mock 保联调，商用模型二期接入
-- **安全**：JWT 无状态认证 + Redis 二次鉴权（支持主动下线），@PreAuthorize 方法级权限
+- **安全**：网关统一 JWT 鉴权（白名单放行 / Token 校验 / 身份 Header 透传）+ 令牌桶限流
