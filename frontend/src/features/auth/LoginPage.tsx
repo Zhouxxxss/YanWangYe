@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { post } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { StudyScene, GrowthIcon, StampIcon, TrophyIcon } from '@/components/illustrations'
+import { AmbientBg } from '@/components/AmbientBg'
 import { staggerContainer, fadeUp } from '@/components/motion'
 
 export function LoginPage() {
@@ -34,13 +35,15 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-white to-tint-50 p-4">
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="show"
-        className="grid w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-[0_20px_50px_rgba(67,97,238,.16)] md:grid-cols-2"
-      >
+    <div className="relative min-h-screen overflow-hidden bg-[#f6f8fd]">
+      <AmbientBg />
+      <div className="relative z-10 flex min-h-screen items-center justify-center p-4">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="grid w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-[0_20px_50px_rgba(67,97,238,.16)] md:grid-cols-2"
+        >
         {/* 左侧：教育风插画 + 品牌价值 */}
         <div className="relative hidden flex-col items-center justify-center gap-4 overflow-hidden bg-gradient-to-b from-brand-50 to-white px-8 py-10 md:flex">
           <motion.div variants={pop2} className="pointer-events-none absolute -right-10 -top-10 opacity-40 blur-2xl">
@@ -105,6 +108,7 @@ export function LoginPage() {
           </Card>
         </motion.div>
       </motion.div>
+      </div>
     </div>
   )
 }

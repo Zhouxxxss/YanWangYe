@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button, Card, Input } from 'antd'
 import { motion, AnimatePresence } from 'framer-motion'
 import { post } from '@/api/http'
-import { RobotIcon } from '@/components/illustrations'
+import { RobotIcon, AskScene } from '@/components/illustrations'
 import { staggerContainer, fadeUp } from '@/components/motion'
 
 interface AiAnswer {
@@ -65,6 +65,14 @@ export function AskPage() {
           提问
         </Button>
       </div>
+
+      {!answer && !loading && (
+        <div className="mt-6 flex flex-col items-center justify-center gap-2 py-6 text-center">
+          <AskScene size={240} />
+          <p className="font-semibold text-brand-600">把问题交给研王爷</p>
+          <p className="text-xs text-gray-400">正在结合你的知识库作答并逐条溯源引用</p>
+        </div>
+      )}
 
       {answer && (
         <div className="mt-5 rounded-2xl bg-brand-50/40 p-4">

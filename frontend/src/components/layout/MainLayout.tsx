@@ -13,6 +13,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '@/stores/auth'
 import { BookOpenIcon } from '@/components/illustrations'
+import { AmbientBg } from '@/components/AmbientBg'
 
 const items = [
   { key: '/', icon: <DashboardOutlined />, label: '学习桌面' },
@@ -84,15 +85,18 @@ export function Layout() {
             </div>
           </Dropdown>
         </AntLayout.Header>
-        <AntLayout.Content style={{ padding: 24 }}>
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
-          >
-            <Outlet />
-          </motion.div>
+        <AntLayout.Content style={{ padding: 24, position: 'relative' }}>
+          <AmbientBg />
+          <div className="relative z-10">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 16, scale: 0.985, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+              transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+            >
+              <Outlet />
+            </motion.div>
+          </div>
         </AntLayout.Content>
       </AntLayout>
     </AntLayout>

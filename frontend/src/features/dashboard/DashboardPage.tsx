@@ -8,7 +8,7 @@ import {
   ClockCircleOutlined, CalendarOutlined, TrophyOutlined, EditOutlined, FireOutlined,
 } from '@ant-design/icons'
 import { get } from '@/api/http'
-import { GrowthIcon } from '@/components/illustrations'
+import { GoalScene } from '@/components/illustrations'
 import { staggerContainer, fadeUp, useCountUp, fmtDuration } from '@/components/motion'
 
 interface Summary {
@@ -64,7 +64,7 @@ export function DashboardPage() {
             <ReactECharts option={shareOption} style={{ height: 280 }} />
           </div>
           <div className="flex flex-col items-center justify-center rounded-2xl bg-gradient-to-b from-brand-50 to-white p-4 text-center">
-            <GrowthIcon size={150} />
+            <GoalScene size={190} />
             <p className="mt-2 font-semibold text-brand-600">让进步可视化</p>
             <p className="mt-1 text-xs text-gray-400">热力图与科目占比<br />接入 study_stat_daily 预聚合后展示</p>
           </div>

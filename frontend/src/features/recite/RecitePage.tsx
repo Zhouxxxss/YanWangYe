@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { get, post } from '@/api/http'
 import type { PageView } from '@/api/http'
-import { BookOpenIcon, SparkleIcon } from '@/components/illustrations'
+import { FlipBookScene, SparkleIcon } from '@/components/illustrations'
 
 interface ReciteCard { id: number; subject: string; chapter?: string; content: string; status: string }
 
@@ -41,7 +41,7 @@ export function RecitePage() {
     <Card title="背诵打卡（SM-2 间隔重复）" extra={<Button type="primary" onClick={() => setOpen(true)}>新增卡片</Button>}>
       {list.length === 0 ? (
         <div className="py-12 text-center">
-          <BookOpenIcon size={120} className="mx-auto" />
+          <FlipBookScene size={210} className="mx-auto" />
           <p className="mt-3 font-semibold text-gray-600">还没有背诵卡片</p>
           <p className="mt-1 text-xs text-gray-400">添加政治、专业课知识点，用间隔重复对抗遗忘</p>
         </div>

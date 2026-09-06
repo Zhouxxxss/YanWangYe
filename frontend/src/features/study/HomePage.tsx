@@ -3,7 +3,7 @@ import { Button, Card, Select, Row, Col, message, Tag } from 'antd'
 import { motion } from 'framer-motion'
 import { http } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
-import { StudyScene, StampIcon } from '@/components/illustrations'
+import { FocusScene, StampIcon } from '@/components/illustrations'
 import { staggerContainer, fadeUp, fmtDuration } from '@/components/motion'
 
 const TARGET_SEC = 10800 // 每日专注目标 3h（示例，未来可接用户配置）
@@ -64,9 +64,7 @@ export function HomePage() {
           <motion.div variants={fadeUp}>
             <Card className="card-lift h-full">
               <div className="flex flex-col items-center justify-center py-2 text-center">
-                <div className="animate-float">
-                  <StudyScene size={190} />
-                </div>
+                <FocusScene size={200} />
                 <p className="mt-2 font-semibold text-brand-600">专注 · 坚持 · 上岸</p>
                 <p className="mt-1 text-xs text-gray-400">
                   每次专注 25 分钟，休息 5 分钟；<br />错题及时复盘，让努力被看见。

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button, Card, message } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { get, post } from '@/api/http'
-import { CalendarCheckIcon } from '@/components/illustrations'
+import { PlanScene } from '@/components/illustrations'
 
 const phases = [
   { label: '基础', emoji: '🌱', bg: '#eef4ff', fg: '#4361ee' },
@@ -32,7 +32,7 @@ export function PlanPage() {
     <Card title="计划模板导入（规划 → 日程）">
       {list.length === 0 ? (
         <div className="py-12 text-center">
-          <CalendarCheckIcon size={120} className="mx-auto" />
+          <PlanScene size={210} className="mx-auto" />
           <p className="mt-3 font-semibold text-gray-600">暂无可用模板</p>
           <p className="mt-1 text-xs text-gray-400">模板就绪后将在这里供你一键导入复习日程</p>
         </div>
