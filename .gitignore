@@ -10,6 +10,12 @@ node_modules/
 .DS_Store
 *.log
 
+# Java / Maven 构建产物
+**/target/
+
+# 本地工具（Maven 发行版等）
+.tools/
+
 # 本地敏感配置
 **/application-prod.yml
 **/*.local.yml

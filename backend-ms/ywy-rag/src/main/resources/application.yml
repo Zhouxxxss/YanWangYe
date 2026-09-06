@@ -1,0 +1,63 @@
+server:
+  port: 8105
+
+spring:
+  application:
+    name: ywy-rag
+  config:
+    import: optional:nacos:${spring.application.name}.yml
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        namespace: ${NACOS_NAMESPACE:yanyan}
+        ip: ${NACOS_IP:127.0.0.1}
+      config:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        namespace: ${NACOS_NAMESPACE:yanyan}
+        file-extension: yml
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_ADDR:127.0.0.1:3306}/ywy?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+  data:
+    redis:
+      host: ${REDIS_ADDR:127.0.0.1}
+      port: ${REDIS_PORT:16379}
+      database: 0
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 60MB
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+ywy:
+  rag:
+    # 对象存储：local | rustfs
+    storage:
+      type: ${STORAGE_TYPE:local}
+    vector:
+      # 向量检索：memory | milvus
+      store: ${VECTOR_STORE:memory}
+    milvus:
+      enabled: false
+    llm:
+      api-key: ${LLM_API_KEY:}
+      base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
+      model: ${LLM_MODEL:deepseek-chat}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

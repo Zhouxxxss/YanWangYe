@@ -1,0 +1,17 @@
+server:
+  port: 8107
+
+spring:
+  application:
+    name: ywy-shopping
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        namespace: ${NACOS_NAMESPACE:yanyan}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

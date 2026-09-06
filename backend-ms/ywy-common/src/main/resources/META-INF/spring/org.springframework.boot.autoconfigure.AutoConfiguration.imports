@@ -1,0 +1,4 @@
+com.ywy.common.autoconfigure.jwt.JwtAutoConfiguration
+com.ywy.common.autoconfigure.mvc.MvcAutoConfiguration
+com.ywy.common.autoconfigure.mybatis.MybatisAutoConfiguration
+com.ywy.common.autoconfigure.JsonAutoConfiguration

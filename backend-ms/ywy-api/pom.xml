@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ywy</groupId>
+        <artifactId>ywy-backend</artifactId>
+        <version>0.1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ywy-api</artifactId>
+    <name>ywy-api · 对外 Feign 接口与跨模块 DTO</name>
+    <description>Feign 客户端、fallback 与跨服务 DTO，避免业务模块循环依赖。</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.ywy</groupId>
+            <artifactId>ywy-common</artifactId>
+        </dependency>
+        <!-- OpenFeign 客户端接口 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <!-- 客户端负载均衡：Nacos 服务发现
+        （每个业务模块自行依赖 nacos-discovery，此处仅保证 Feign 解析 lb:// 所需依赖存在） -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+    </dependencies>
+</project>
