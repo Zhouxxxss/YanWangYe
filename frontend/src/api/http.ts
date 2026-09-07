@@ -16,7 +16,7 @@ export interface PageView<T> {
 
 const TOKEN_KEY = 'yanyan_token'
 
-export const http = axios.create({ baseURL: '/api', timeout: 15000 })
+export const http = axios.create({ baseURL: '', timeout: 15000 })
 
 http.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY)

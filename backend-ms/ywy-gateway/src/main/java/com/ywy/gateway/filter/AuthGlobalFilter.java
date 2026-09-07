@@ -38,7 +38,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     private final AntPathMatcher matcher = new AntPathMatcher();
 
     private static final String[] WHITELIST = {
-            "/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/refresh",
+            "/auth/login", "/auth/register", "/auth/refresh", "/auth/wx/login",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**", "/doc.html",
             "/actuator/**", "/favicon.ico",
     };
@@ -62,8 +62,14 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                 .headers(h -> {
                     h.remove("Authorization");
                     h.set(UserContext.HEADER_USER_ID, String.valueOf(jwtUtils.getUserId(claims)));
-                    h.set(UserContext.HEADER_USERNAME, claims.get("username", String.class));
-                    h.set(UserContext.HEADER_ROLE, claims.get("role", String.class));
+                    String username = claims.get("username", String.class);
+                    if (username != null) {
+                        h.set(UserContext.HEADER_USERNAME, username);
+                    }
+                    String role = claims.get("role", String.class);
+                    if (role != null) {
+                        h.set(UserContext.HEADER_ROLE, role);
+                    }
                 })
                 .build();
         return chain.filter(exchange.mutate().request(mutated).build());

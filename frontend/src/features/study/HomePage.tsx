@@ -78,7 +78,7 @@ export function HomePage() {
   )
 
   async function doStart() {
-    const res = await http.post<{ data: { sessionId: number } }>('/v1/study/session/start', null, {
+    const res = await http.post<{ data: { sessionId: number } }>('/study/session/start', null, {
       params: { subject },
     })
     setSessionId(res.data.data.sessionId)
@@ -88,7 +88,7 @@ export function HomePage() {
 
   async function doEnd() {
     if (sessionId == null) return
-    await http.post(`/v1/study/session/${sessionId}/end`)
+    await http.post(`/study/session/${sessionId}/end`)
     setSessionId(null)
     message.success('已记录本次学习')
   }

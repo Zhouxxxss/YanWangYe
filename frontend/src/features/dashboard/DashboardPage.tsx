@@ -24,7 +24,7 @@ export function DashboardPage() {
   const [period, setPeriod] = useState<'week' | 'month'>('week')
   const { data } = useQuery({
     queryKey: ['dashboard', period],
-    queryFn: () => get<Summary>('/v1/dashboard/summary', { period }),
+    queryFn: () => get<Summary>('/dashboard/summary', { period }),
   })
 
   const study = data?.studySeconds ?? 0

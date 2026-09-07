@@ -11,14 +11,14 @@ const phases = [
 ]
 
 export function PlanPage() {
-  const { data } = useQuery({ queryKey: ['plan'], queryFn: () => get<string[]>('/v1/plan/templates') })
+  const { data } = useQuery({ queryKey: ['plan'], queryFn: () => get<string[]>('/plan/templates') })
   const [importing, setImporting] = useState<string | null>(null)
   const [doneId, setDoneId] = useState<string | null>(null)
 
   const doImport = async (id: string) => {
     setImporting(id)
     try {
-      const r = await post<{ generated: number }>(`/v1/plan/import?templateId=${id}`)
+      const r = await post<{ generated: number }>(`/plan/import?templateId=${id}`)
       message.success(`已导入日程 ${r.generated} 条`)
       setDoneId(id)
     } finally {

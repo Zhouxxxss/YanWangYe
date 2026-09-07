@@ -37,12 +37,12 @@ export function WrongBookPage() {
 
   const { data } = useQuery({
     queryKey: ['wrongbook'],
-    queryFn: () => get<PageView<WrongQuestion>>('/v1/wrongbook/page', { size: 50 }),
+    queryFn: () => get<PageView<WrongQuestion>>('/wrongbook/page', { size: 50 }),
   })
 
   const add = async () => {
     const v = await form.validateFields()
-    await post('/v1/wrongbook', v)
+    await post('/wrongbook', v)
     setOpen(false)
     form.resetFields()
     queryClient.invalidateQueries({ queryKey: ['wrongbook'] })
@@ -97,7 +97,7 @@ function FlashCard({ w }: { w: WrongQuestion }) {
 
   const review = async (q: number) => {
     try {
-      await post(`/v1/wrongbook/${w.id}/review?quality=${q}`)
+      await post(`/wrongbook/${w.id}/review?quality=${q}`)
       message.success(`已按「${qualityMeta.find((m) => m.q === q)?.label}」调度下次复习`)
     } catch {
       message.info('复习调度接口待接入，已为你记录本次反馈')

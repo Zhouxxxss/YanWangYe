@@ -45,6 +45,9 @@ ywy:
     refresh-expire-ms: 604800000
   auth:
     session-prefix: "login:token:"
+    wx:
+      app-id: ${WX_MP_APP_ID:}
+      app-secret: ${WX_MP_APP_SECRET:}
 
 springdoc:
   api-docs:

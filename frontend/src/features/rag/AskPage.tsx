@@ -41,7 +41,7 @@ export function AskPage() {
     setAnswer(null)
     setDone(false)
     try {
-      const data = await post<AiAnswer>('/v1/rag/ask', { question: q, scope: 'all' })
+      const data = await post<AiAnswer>('/rag/ask', { question: q, scope: 'all' })
       setAnswer(data)
     } finally {
       setLoading(false)

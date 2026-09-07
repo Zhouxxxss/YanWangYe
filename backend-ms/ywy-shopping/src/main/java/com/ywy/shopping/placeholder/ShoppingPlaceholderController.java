@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * 二期占位：二手资料 / 商家入驻。保证 /api/v1/shopping/** 可路由。
+ * 二期占位：二手资料 / 商家入驻。保证 /shopping/** 可路由。
  */
 @RestController
-@RequestMapping("/api/v1/shopping")
+@RequestMapping("/shopping")
 public class ShoppingPlaceholderController {
 
     @GetMapping

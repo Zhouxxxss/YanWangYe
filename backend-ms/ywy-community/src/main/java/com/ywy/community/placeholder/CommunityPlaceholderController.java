@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * 二期占位：发帖 / 好友聊天。无需实现，仅保证 /api/v1/community/** 可路由。
+ * 二期占位：发帖 / 好友聊天。无需实现，仅保证 /community/** 可路由。
  */
 @RestController
-@RequestMapping("/api/v1/community")
+@RequestMapping("/community")
 public class CommunityPlaceholderController {
 
     @GetMapping

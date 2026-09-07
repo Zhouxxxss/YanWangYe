@@ -19,19 +19,19 @@ export function RecitePage() {
   const [form] = Form.useForm()
   const { data } = useQuery({
     queryKey: ['recite'],
-    queryFn: () => get<PageView<ReciteCard>>('/v1/recite/page', { size: 50 }),
+    queryFn: () => get<PageView<ReciteCard>>('/recite/page', { size: 50 }),
   })
 
   const add = async () => {
     const v = await form.validateFields()
-    await post('/v1/recite', v)
+    await post('/recite', v)
     setOpen(false)
     form.resetFields()
     message.success('卡片已添加')
   }
 
   const recite = async (id: number, quality: number) => {
-    await post(`/v1/recite/${id}/recite?quality=${quality}`)
+    await post(`/recite/${id}/recite?quality=${quality}`)
     message.success('打卡成功，继续保持！')
   }
 

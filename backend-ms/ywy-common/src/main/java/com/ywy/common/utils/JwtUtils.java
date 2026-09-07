@@ -65,6 +65,7 @@ public class JwtUtils {
     }
 
     public long getExpireMs() { return props.getExpireMs(); }
+    public long getRefreshExpireMs() { return props.getRefreshExpireMs(); }
     public String getHeader() { return props.getHeader(); }
     public String getPrefix() { return props.getPrefix(); }
 }

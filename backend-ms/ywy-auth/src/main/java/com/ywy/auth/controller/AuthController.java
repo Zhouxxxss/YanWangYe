@@ -1,10 +1,13 @@
 package com.ywy.auth.controller;
 
-import com.ywy.auth.dto.AuthResponse;
-import com.ywy.auth.dto.LoginRequest;
-import com.ywy.auth.dto.RegisterRequest;
+import com.ywy.auth.domain.dto.AuthResponse;
+import com.ywy.auth.domain.dto.CredentialUpdateRequest;
+import com.ywy.auth.domain.dto.LoginRequest;
+import com.ywy.auth.domain.dto.RegisterRequest;
+import com.ywy.auth.domain.dto.WxLoginRequest;
 import com.ywy.auth.service.AuthService;
 import com.ywy.common.result.R;
+import com.ywy.common.utils.UserContext;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -26,9 +29,19 @@ public class AuthController {
         return R.ok();
     }
 
-    @PostMapping("/login")
-    public R<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
-        return R.ok(authService.login(req));
+//    @PostMapping("/login")
+//    public R<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
+//        return R.ok(authService.login(req));
+//    }
+
+    @PostMapping("/wx/login")
+    public R<AuthResponse> wxLogin(@Valid @RequestBody WxLoginRequest req) {
+        return R.ok(authService.wxLogin(req.getCode()));
+    }
+
+    @PostMapping("/me/credential")
+    public R<AuthResponse> updateCredential(@Valid @RequestBody CredentialUpdateRequest req) {
+        return R.ok(authService.updateCredential(UserContext.uid(), req));
     }
 
     @PostMapping("/refresh")

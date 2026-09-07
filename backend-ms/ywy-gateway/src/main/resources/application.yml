@@ -25,31 +25,31 @@ spring:
         - id: ywy-auth
           uri: lb://ywy-auth
           predicates:
-            - Path=/api/v1/auth/**,/v3/api-docs/auth/**
+            - Path=/auth/**,/v3/api-docs/auth/**
         # 用户模块：档案 + 好友
         - id: ywy-user
           uri: lb://ywy-user
           predicates:
-            - Path=/api/v1/users/**,/api/v1/friends/**
+            - Path=/users/**,/friends/**
         # 学习模块：错题/背诵/计时/计划/数据大盘/遗忘曲线
         - id: ywy-study
           uri: lb://ywy-study
           predicates:
-            - Path=/api/v1/wrongbook/**,/api/v1/recite/**,/api/v1/study/**,/api/v1/plan/**,/api/v1/dashboard/**,/api/v1/anki/**
+            - Path=/wrongbook/**,/recite/**,/study/**,/plan/**,/dashboard/**,/anki/**
         # RAG 知识库：答疑 + 文件分片上传
         - id: ywy-rag
           uri: lb://ywy-rag
           predicates:
-            - Path=/api/v1/rag/**,/api/v1/knowledge/**
+            - Path=/rag/**,/knowledge/**
         # 二期预留：社区（发帖/好友聊天）、购物（二手资料/商家入驻）
         - id: ywy-community
           uri: lb://ywy-community
           predicates:
-            - Path=/api/v1/community/**
+            - Path=/community/**
         - id: ywy-shopping
           uri: lb://ywy-shopping
           predicates:
-            - Path=/api/v1/shopping/**
+            - Path=/shopping/**
         # 默认路由：其余命中直接转发到注册中心由服务名解析
         - id: ywy-default
           uri: lb://ywy-user

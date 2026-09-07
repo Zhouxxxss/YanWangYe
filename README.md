@@ -16,6 +16,8 @@ frontend ──HTTP──▶ ywy-gateway (8100) ──lb://──▶ ywy-auth (8
 - **注册中心 / 配置中心**：Nacos（命名空间 `yanyan`）
 - **服务间通信**：OpenFeign
 - **认证**：网关 `AuthGlobalFilter` 集中 JWT 鉴权，身份信息经 Header 透传下游；网关内置令牌桶限流
+- **身份模型**：单一 `user` 表（凭据 + 档案合并，无独立认证表）。认证链路 = JWT 签名 + Redis 双 token 会话（access 滑动 / refresh 轮换），`logout` / `refresh` 走 Redis 校验，不按请求查库
+- **公众号关注自动注册**：auth 服务经可插拔 `WxMpClient` 适配器（未配 appid/secret 走 Mock 联调），account 记 openid，默认用户名/密码为空，用户在「我的」页补设
 - **存储**：MySQL（业务数据）/ Redis（会话、Anki 到期队列）/ 对象存储（RustFS，RAG 模块可插拔）
 
 ## 目录结构
@@ -71,10 +73,10 @@ frontend ──HTTP──▶ ywy-gateway (8100) ──lb://──▶ ywy-auth (8
    cd frontend
    npm install
    npm run dev
-   # 访问: http://localhost:3000  (已代理 /api -> 网关 8100)
+   # 访问: http://localhost:3000  (已代理 /auth、/users 等服务前缀 -> 网关 8100)
    ```
 
-统一入口为网关 `http://localhost:8100`，所有 `/api/**` 请求经网关鉴权并路由到对应微服务。
+统一入口为网关 `http://localhost:8100`，请求按服务前缀（`/auth`、`/users`、`/study` 等）经网关鉴权并路由到对应微服务。
 
 ## 一期范围（已锁定）
 
@@ -93,7 +95,7 @@ frontend ──HTTP──▶ ywy-gateway (8100) ──lb://──▶ ywy-auth (8
 
 - **ywy-community**（发帖 / 好友聊天）、**ywy-shopping**（二手资料 / 商家入驻）已建模块骨架
 - RAG 的存储与向量组件通过接口抽象，`local | rustfs` 与 `memory | milvus` 可切换
-- 网关已为社区 / 购物路由预留 `/api/v1/community/**`、`/api/v1/shopping/**`
+- 网关已为社区 / 购物路由预留 `/community/**`、`/shopping/**`
 
 ## 技术要点
 

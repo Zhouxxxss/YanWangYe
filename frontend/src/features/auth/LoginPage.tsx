@@ -20,12 +20,12 @@ export function LoginPage() {
     try {
       if (mode === 'login') {
         const data = await post<{ token: string; userId: number; username: string; role: string }>(
-          '/v1/auth/login', v)
+          '/auth/login', v)
         setAuth(data)
         message.success('欢迎回来')
         nav('/', { replace: true })
       } else {
-        await post('/v1/auth/register', v)
+        await post('/auth/register', v)
         message.success('注册成功，请登录')
         setMode('login')
       }

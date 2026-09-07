@@ -9,19 +9,25 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 账号表（auth 模块主权）。承载登录凭据与基础身份；
- * 用户档案（昵称/头像/简介等）由用户模块的 user_profile 维护。
+ * 单表 user（auth 与 user 模块共用）。凭据列(auth 主权)：account/username/password/status/role；
+ * 档案列(user 主权)：nickname/avatar/email/bio/style_token/target_school_id。
+ * 认证链路仅依赖本表主键与 Redis 会话，不做每次请求查库。
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("auth_account")
+@TableName("user")
 public class User extends BaseEntity {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    /** 账号：公众号 openid，或账号密码注册时与 username 同值 */
+    private String account;
+
+    /** 登录名（可后置设置，公众号注册为空，用户可在「我的」页补充） */
     private String username;
 
+    /** BCrypt 散列（公众号注册为空，认证走 account） */
     private String password;
 
     /** 状态：NORMAL / DISABLED */

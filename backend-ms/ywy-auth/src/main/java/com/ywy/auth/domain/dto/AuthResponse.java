@@ -1,4 +1,4 @@
-package com.ywy.auth.dto;
+package com.ywy.auth.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
